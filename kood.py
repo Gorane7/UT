@@ -72,6 +72,7 @@ increase_mag_button = None
 
 data_names = ["type", "magType", "mag", "depth", "longitude", "latitude", "time"]
 
+#klass, mida kasutati andmete visualiseerimisel
 class Button():
     def __init__(self, text, colour, back_ground_colour, x, y, x_length, y_length, text_size):
         self.text_str = text
@@ -99,6 +100,7 @@ class Button():
             return True
         return False
 
+#tekitab listi failinimedest
 def generate_names(start, first_split, end):
     file_list = []
     for i in range(start, first_split):
@@ -110,6 +112,7 @@ def generate_names(start, first_split, end):
             file_list.append(file_name)
     return file_list
 
+#jätab faili alles vaid valitud tulbad
 def remove_info(file_names, columns_to_keep):
     for file_name in file_names:
         file = pd.read_csv(file_name)
@@ -117,6 +120,7 @@ def remove_info(file_names, columns_to_keep):
         new_file = file[columns_to_keep]
         new_file.to_csv(file_name)
 
+#leiab failidest teatud andmete maksimaalsed ning minimaalsed väärtused
 def min_max_data(file_names):
     values = [[None, None], [None, None], [None, None], [None, None]]
     value_names = ["mag", "longitude", "latitude"]
@@ -129,6 +133,7 @@ def min_max_data(file_names):
                 values[i][1] = file[value_name].max()
     print(values)
 
+#näitab andmete jaotumist
 def get_distribution(data_type, min_value, max_value, file_names):
     values = [0] * (max_value - min_value)
     for file_name in file_names:
@@ -141,6 +146,7 @@ def get_distribution(data_type, min_value, max_value, file_names):
     plt.plot(values)
     plt.show()
 
+#muudab andmed täisarvudeks, mitte ujukomaarvudeks nagu funktsiooni nimi ütleb
 def change_stats_to_float(file_names):
     for file_name in file_names:
         file = pd.read_csv(file_name)
@@ -149,6 +155,7 @@ def change_stats_to_float(file_names):
         new_file["time"] = file["time"]
         new_file.to_csv(file_name)
 
+#eemaldab ajast kõik peale kuupäeva
 def change_time(file_names):
     for file_name in file_names:
         file = pd.read_csv(file_name)
@@ -160,6 +167,7 @@ def change_time(file_names):
         #new_file["time"] = file["time"].str[:10]
         new_file.to_csv(file_name)
 
+#vahetab andmete järjekorra failis, et need algaks 1. jaanuarist ja lõpeks 31.detsembriga
 def reverse(file_names):
     for file_name in file_names:
         file = pd.read_csv(file_name)
@@ -167,10 +175,12 @@ def reverse(file_names):
         new_file = file.iloc[::-1]
         new_file.to_csv(file_name)
 
+#funktsioon peaks leidma asukoha, kus on kõige rohkem maavärinaid, kuid ei tööta
 def max_location_of_quakes(mag_to_find):
     file = pd.read_csv(str(mag_to_find) + ".csv")
     return(file.max)
 
+#loeb failist andmed listi, et saaks nende põhjal ennustada või treenida (seda funktsiooni lõppversioonis ei kasutatud)
 def read_file_into_array(array, file_name):
     file = pd.read_csv(file_name)
     last_date = None
@@ -188,17 +198,20 @@ def read_file_into_array(array, file_name):
         numpy_array[long][lat][mag] = 1
     array.append(numpy_array)
 
+#loeb faili kaardile, kus on näha maavärinate sagedus mingis piirkonnas
 def read_file_into_earthquake_map(quake_map, file_name):
     file = pd.read_csv(file_name)
     for i in range(len(file)):
         this_data = file.loc[i]
         quake_map[this_data[1] - min_mag][this_data[2] - min_long][this_data[3] - min_lat] += 1
 
+#salvestab maavärinakaardi
 def save_map(quake_map):
     for i, mag_map in enumerate(quake_map):
         quake_df = pd.DataFrame(data = mag_map)
         quake_df.to_csv(str(i + min_mag) + ".csv")
 
+#tekitab kaardi, kus on näha maavärinate sagedus mingis piirkonnas
 def make_general_earthquake_map(file_names):
     earthquake_map = np.zeros((mag_len, long_len, lat_len), dtype = int)
     for file_name in file_names:
@@ -207,6 +220,7 @@ def make_general_earthquake_map(file_names):
     print("map done")
     save_map(earthquake_map)
 
+#loeb failidest andmeid, et kasutada ennustamisel või treenimisel (seda funktsiooni lõppversioonis ei kasutatud)
 def make_data_table(file_names):
     array_of_numpys = []
     for file_name in file_names:
@@ -216,6 +230,7 @@ def make_data_table(file_names):
     print(len(array_of_numpys))
     return array_of_numpys
 
+#tekitab listi maavärinatest, mis toimusid mingis asukohas ja selle ümber (kasutati lõppversioonis)
 def make_3x3_vector_direct(file_names, loc):
     vector_list = []
     answer_list = []
@@ -256,6 +271,7 @@ def make_3x3_vector_direct(file_names, loc):
     del answer_list[0]
     return vector_list, answer_list
 
+#tekitab listi asukohtadest, mis on valitud asukoha ümber
 def gen_possible_locs(loc):
     loc_list = []
     
@@ -273,6 +289,7 @@ def gen_possible_locs(loc):
 
     return loc_list
 
+#tekitab listi põhjal listi maavärinatest, mis on kindlas asukohas (lõppversioonis ei kasutatud)
 def make_3x3_vector_from_data_table(data_table, loc):
     vector_list = []
     
@@ -299,6 +316,7 @@ def make_3x3_vector_from_data_table(data_table, loc):
     print("vectors done")
     return vector_list
 
+#visualiseerib andmeid
 def display(data):
     global game_display
     global clock
@@ -319,6 +337,7 @@ def display(data):
     game_loop(data)
     pygame.quit()
 
+#tegeleb andmete visualiseerimisel hiireklõpsudega
 def mouse_press_event(mouse_event):
     global day
     global mag
@@ -332,21 +351,25 @@ def mouse_press_event(mouse_event):
     elif increase_mag_button.in_button(coordinates):
         mag += 1
 
+#kasutatakse andmete visualiseerimisel
 def setup():
     pygame.init()
     display = pygame.display.set_mode(screen_size)
     pygame.display.set_caption(screen_name)
     return display
 
+#kasutatakse andmete visualiseerimisel
 def game_loop(data):
     while not game_exit:
         one_loop(data)
 
+#kasutatakse andmete visualiseerimisel
 def one_loop(data):
     event_handle()
     draw_game(data)
     clock.tick(game_speed)
 
+#tegeleb andmete visualiseerimisel kasutaja antud sisenditega
 def event_handle():
     global game_exit
     for event in pygame.event.get():
@@ -356,6 +379,7 @@ def event_handle():
             if event.button == 1:
                 mouse_press_event(event)
 
+#kasutatakse andmete visualiseerimisel
 def draw_game(data):
     #Resets the display
     game_display.fill(background_color)
@@ -378,6 +402,7 @@ def draw_game(data):
     #Actually updates
     pygame.display.update()
 
+#teeb esialgse võrgu suvaliste väärtustega
 def initialize_network(n_input, n_hidden, n_output):
     both_inputs = n_input + n_hidden
     some_model = dict(
@@ -396,6 +421,7 @@ def initialize_network(n_input, n_hidden, n_output):
 
     return some_model
 
+#laeb salvestatud võrgu failist (failidest)
 def load_network():
     some_model = dict(
         wf = pd.read_csv("wf.csv").as_matrix(),
@@ -414,6 +440,7 @@ def load_network():
         some_model[k] = np.delete(some_model[k], 0, axis = 1)
     return some_model
 
+#pärilevifunkstioon
 def lstm_forward(X, memory, n_input, n_hidden):
     m = model
     wf, wi, wc, wo, wy = m['wf'], m['wi'], m['wc'], m['wo'], m['wy']
@@ -440,6 +467,7 @@ def lstm_forward(X, memory, n_input, n_hidden):
 
     return prob, state, cache
 
+#tagasievifunktsioon
 def lstm_backward(prob, y_train, d_next, cache, n_hidden):
     hf, hi, ho, hc, c, h, y, wf, wi, wc, wo, wy, new_X, c_old = cache
     dh_next, dc_next = d_next
@@ -495,6 +523,7 @@ def lstm_backward(prob, y_train, d_next, cache, n_hidden):
 
     return grad, state
 
+#pärilevi ja tagasilevi
 def train_step(X_train, y_train, state):
     global model
     probs = []
